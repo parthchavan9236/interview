@@ -9,6 +9,7 @@ import InterviewRoomPage from "./pages/InterviewRoomPage";
 import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import DashboardPage from "./pages/DashboardPage";
+import ProfilePage from "./pages/ProfilePage";
 
 function ProtectedRoute({ children }) {
     const { isSignedIn, isLoaded } = useAuth();
@@ -31,15 +32,65 @@ function ProtectedRoute({ children }) {
     );
 }
 
+function PublicRoute({ children }) {
+    const { isSignedIn, isLoaded } = useAuth();
+
+    if (!isClerkConfigured) {
+        if (!isLoaded) return null;
+        if (isSignedIn) {
+            return <Navigate to="/dashboard" replace />;
+        }
+        return <>{children}</>;
+    }
+
+    return (
+        <>
+            <SignedIn>
+                <Navigate to="/dashboard" replace />
+            </SignedIn>
+            <SignedOut>{children}</SignedOut>
+        </>
+    );
+}
+
 function App() {
     return (
         <div className="min-h-screen bg-dark">
             <Navbar />
             <main className="pt-16">
                 <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/sign-in/*" element={<SignInPage />} />
-                    <Route path="/sign-up/*" element={<SignUpPage />} />
+                    <Route
+                        path="/"
+                        element={
+                            <ProtectedRoute>
+                                <Navigate to="/dashboard" replace />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/sign-in/*"
+                        element={
+                            <PublicRoute>
+                                <SignInPage />
+                            </PublicRoute>
+                        }
+                    />
+                    <Route
+                        path="/sign-up/*"
+                        element={
+                            <PublicRoute>
+                                <SignUpPage />
+                            </PublicRoute>
+                        }
+                    />
+                    <Route
+                        path="/profile"
+                        element={
+                            <ProtectedRoute>
+                                <ProfilePage />
+                            </ProtectedRoute>
+                        }
+                    />
                     <Route
                         path="/dashboard"
                         element={

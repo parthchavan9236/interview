@@ -21,6 +21,7 @@ import {
     LayoutDashboard,
     LogIn,
     UserPlus,
+    User,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -145,6 +146,13 @@ export default function Navbar() {
                         </span>
                     </div>
                     <button
+                        onClick={() => navigate("/profile")}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-dark-300/50 transition-all"
+                    >
+                        <User className="w-4 h-4" />
+                        <span className="hidden lg:inline">Profile</span>
+                    </button>
+                    <button
                         onClick={handleCustomLogout}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-dark-300/50 transition-all"
                         aria-label="Sign out"
@@ -237,8 +245,8 @@ export default function Navbar() {
         <>
             <nav
                 className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
-                        ? "bg-dark/90 backdrop-blur-xl border-b border-dark-400/30 shadow-lg shadow-black/20"
-                        : "bg-dark/50 backdrop-blur-md"
+                    ? "bg-dark/90 backdrop-blur-xl border-b border-dark-400/30 shadow-lg shadow-black/20"
+                    : "bg-dark/50 backdrop-blur-md"
                     }`}
             >
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -262,8 +270,8 @@ export default function Navbar() {
                                     key={link.path}
                                     to={link.path}
                                     className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${isActive(link.path)
-                                            ? "bg-primary-500/15 text-primary-400 border border-primary-500/30"
-                                            : "text-gray-400 hover:text-gray-200 hover:bg-dark-300/50"
+                                        ? "bg-primary-500/15 text-primary-400 border border-primary-500/30"
+                                        : "text-gray-400 hover:text-gray-200 hover:bg-dark-300/50"
                                         }`}
                                 >
                                     <link.icon className="w-4 h-4" />
@@ -307,8 +315,8 @@ export default function Navbar() {
                                 key={link.path}
                                 to={link.path}
                                 className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition-all ${isActive(link.path)
-                                        ? "bg-primary-500/15 text-primary-400 border border-primary-500/30"
-                                        : "text-gray-400 hover:text-white hover:bg-dark-300/50"
+                                    ? "bg-primary-500/15 text-primary-400 border border-primary-500/30"
+                                    : "text-gray-400 hover:text-white hover:bg-dark-300/50"
                                     }`}
                             >
                                 <link.icon className="w-5 h-5" />
