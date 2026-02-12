@@ -12,4 +12,16 @@ export default defineConfig({
             },
         },
     },
+    define: {
+        "global": "window",
+        "process.env": {},
+    },
+    resolve: {
+        alias: {
+            process: "process/browser",
+            stream: "stream-browserify",
+            zlib: "browserify-zlib",
+            util: "util",
+        },
+    },
 });

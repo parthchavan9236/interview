@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createSlot, getOpenSlots, getMySlots, bookSlot } from "../lib/api";
 import { useUser } from "../lib/useAuth";
@@ -144,6 +145,7 @@ function FindSlotsTab() {
 
 function MyScheduleTab({ isCreating, setIsCreating }) {
     const { user } = useUser();
+    const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [startTime, setStartTime] = useState("");
 
@@ -285,13 +287,13 @@ function MyScheduleTab({ isCreating, setIsCreating }) {
                                         )}
                                     </div>
 
-                                    {slot.status === "booked" && (
+                                    {(slot.status === "booked" || (isInterviewer && slot.status === "open")) && (
                                         <button
                                             className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2"
-                                            onClick={() => window.alert("Video call integration coming soon!")}
+                                            onClick={() => navigate(`/room/${slot._id}`)}
                                         >
                                             <Video className="w-4 h-4" />
-                                            Join Meeting
+                                            {isInterviewer && slot.status === "open" ? "Start Meeting" : "Join Meeting"}
                                         </button>
                                     )}
                                 </div>

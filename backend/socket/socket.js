@@ -36,8 +36,35 @@ const initSocket = (server) => {
             socket.to(roomId).emit("whiteboard-change", data);
         });
 
+        // WebRTC Signaling
+        socket.on("call-user", (data) => {
+            console.log(`Call from ${data.from} to room ${data.roomId}`);
+            socket.to(data.roomId).emit("call-made", {
+                offer: data.offer,
+                socket: socket.id,
+                user: data.user
+            });
+        });
+
+        socket.on("make-answer", (data) => {
+            console.log(`Answer from ${socket.id} to ${data.to}`);
+            socket.to(data.to).emit("answer-made", {
+                socket: socket.id,
+                answer: data.answer
+            });
+        });
+
+        socket.on("ice-candidate", (data) => {
+            socket.to(data.to).emit("ice-candidate", {
+                candidate: data.candidate,
+                socket: socket.id
+            });
+        });
+
         socket.on("disconnect", () => {
             console.log("User disconnected:", socket.id);
+            // Optionally notify room
+            // socket.broadcast.emit("user-disconnected", socket.id);
         });
     });
 
