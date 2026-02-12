@@ -2,7 +2,7 @@ import { useUser, useAuth } from "../lib/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { getSubmissionStats } from "../lib/api";
 import LoadingSpinner from "../components/LoadingSpinner";
-import { User, Mail, Shield, Calendar, Trophy, Target, Clock, Zap } from "lucide-react";
+import { User, Mail, Shield, Calendar, Trophy, Target, Clock, Zap, Users } from "lucide-react";
 
 export default function ProfilePage() {
     const { user } = useUser();
