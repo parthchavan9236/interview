@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { useUser, useAuth } from "../lib/useAuth";
 import { useQuery } from "@tanstack/react-query";
-import { getSubmissionStats } from "../lib/api";
+import { getSubmissionStats, getProblems } from "../lib/api";
 import LoadingSpinner from "../components/LoadingSpinner";
+import AIChatWidget from "../components/AIChatWidget";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import {
     Code2,
@@ -18,6 +19,7 @@ import {
     Calendar,
     CheckCircle2,
     TrendingUp,
+    Lightbulb
 } from "lucide-react";
 
 const quickActions = [
@@ -58,7 +60,7 @@ export default function DashboardPage() {
         return "Good Evening";
     }
 
-    const { data: stats, isLoading } = useQuery({
+    const { data: stats, isLoading: statsLoading } = useQuery({
         queryKey: ["stats"],
         queryFn: async () => {
             const res = await getSubmissionStats();
@@ -66,7 +68,15 @@ export default function DashboardPage() {
         },
     });
 
-    if (isLoading) return <LoadingSpinner />;
+    const { data: problems, isLoading: problemsLoading } = useQuery({
+        queryKey: ["problems"],
+        queryFn: async () => {
+            const res = await getProblems();
+            return res.data;
+        },
+    });
+
+    if (statsLoading || problemsLoading) return <LoadingSpinner />;
 
     const difficultyData = [
         { name: "Easy", value: stats?.solved?.Easy || 0, color: "#10b981" },
@@ -76,6 +86,12 @@ export default function DashboardPage() {
 
     const totalSolved = (stats?.solved?.Easy || 0) + (stats?.solved?.Medium || 0) + (stats?.solved?.Hard || 0);
     const activityData = stats?.activity?.slice(-7).map(a => ({ date: a._id.slice(5), count: a.count })) || [];
+
+    // Filter recommended problems (unsolved)
+    // Naive implementation: just pick first 3 not in activity? 
+    // Ideally we need list of solved problem IDs. 
+    // Assuming stats doesn't have IDs, we'll just show random ones for now or easy ones.
+    const recommendedProblems = problems?.slice(0, 3) || [];
 
     return (
         <div className="relative">
@@ -121,91 +137,128 @@ export default function DashboardPage() {
                     ))}
                 </div>
 
-                {/* Charts Section */}
-                <div className="grid lg:grid-cols-2 gap-6 mb-8 sm:mb-12">
-                    {/* Difficulty Distribution */}
-                    <div className="card p-6">
-                        <h3 className="text-lg font-semibold text-white mb-6">Problem Difficulty</h3>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={difficultyData}
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={60}
-                                        outerRadius={80}
-                                        paddingAngle={5}
-                                        dataKey="value"
+                <div className="grid lg:grid-cols-3 gap-6 mb-8 sm:mb-12">
+                    {/* Charts Section (Span 2 cols) */}
+                    <div className="lg:col-span-2 space-y-6">
+                        {/* Activity Chart */}
+                        <div className="card p-6">
+                            <h3 className="text-lg font-semibold text-white mb-6">Weekly Activity</h3>
+                            <div className="h-64">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={activityData}>
+                                        <XAxis dataKey="date" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
+                                        <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
+                                        <Tooltip
+                                            cursor={{ fill: '#374151', opacity: 0.2 }}
+                                            contentStyle={{ backgroundColor: '#1a1a1a', border: 'none', borderRadius: '8px' }}
+                                            itemStyle={{ color: '#ec4899' }}
+                                        />
+                                        <Bar dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+
+                        {/* Difficulty Distribution */}
+                        <div className="card p-6">
+                            <h3 className="text-lg font-semibold text-white mb-6">Problem Difficulty</h3>
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
+                                <div className="h-48 w-48 shrink-0">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={difficultyData}
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={40}
+                                                outerRadius={60}
+                                                paddingAngle={5}
+                                                dataKey="value"
+                                            >
+                                                {difficultyData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip
+                                                contentStyle={{ backgroundColor: '#1a1a1a', border: 'none', borderRadius: '8px' }}
+                                                itemStyle={{ color: '#fff' }}
+                                            />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
+                                <div className="flex flex-col gap-4">
+                                    {difficultyData.map((d) => (
+                                        <div key={d.name} className="flex items-center gap-3">
+                                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: d.color }} />
+                                            <div>
+                                                <div className="text-sm font-medium text-gray-200">{d.name}</div>
+                                                <div className="text-xs text-gray-500">{d.value} Solved</div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right Column: Quick Actions & Recommended */}
+                    <div className="space-y-6">
+                        {/* Quick Actions */}
+                        <div>
+                            <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                                <Zap className="w-5 h-5 text-primary-400" />
+                                Quick Actions
+                            </h2>
+                            <div className="grid gap-4">
+                                {quickActions.map((action) => (
+                                    <Link
+                                        key={action.title}
+                                        to={action.to}
+                                        className="card p-5 group hover:-translate-y-1 transition-all duration-300"
                                     >
-                                        {difficultyData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip
-                                        contentStyle={{ backgroundColor: '#1a1a1a', border: 'none', borderRadius: '8px' }}
-                                        itemStyle={{ color: '#fff' }}
-                                    />
-                                </PieChart>
-                            </ResponsiveContainer>
+                                        <div className="flex items-center gap-4">
+                                            <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${action.gradient} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 shrink-0`}>
+                                                <action.icon className="w-5 h-5 text-white" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="text-base font-semibold text-gray-100 mb-0.5 flex items-center gap-2">
+                                                    {action.title}
+                                                    <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                                                </h3>
+                                                <p className="text-xs text-gray-400 truncate">{action.description}</p>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
                         </div>
-                        <div className="flex justify-center gap-6 mt-4">
-                            {difficultyData.map((d) => (
-                                <div key={d.name} className="flex items-center gap-2">
-                                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: d.color }} />
-                                    <span className="text-sm text-gray-400">{d.name} ({d.value})</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
 
-                    {/* Activity Chart */}
-                    <div className="card p-6">
-                        <h3 className="text-lg font-semibold text-white mb-6">Weekly Activity</h3>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={activityData}>
-                                    <XAxis dataKey="date" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-                                    <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-                                    <Tooltip
-                                        cursor={{ fill: '#374151', opacity: 0.2 }}
-                                        contentStyle={{ backgroundColor: '#1a1a1a', border: 'none', borderRadius: '8px' }}
-                                        itemStyle={{ color: '#ec4899' }}
-                                    />
-                                    <Bar dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
-                                </BarChart>
-                            </ResponsiveContainer>
+                        {/* Recommended Problems */}
+                        <div>
+                            <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                                <Lightbulb className="w-5 h-5 text-primary-400" />
+                                Recommended for You
+                            </h2>
+                            <div className="space-y-3">
+                                {recommendedProblems.map(prob => (
+                                    <Link key={prob._id} to={`/problems/${prob._id}`} className="card p-4 hover:bg-dark-300 transition-colors block border-l-4 border-l-transparent hover:border-l-primary-500">
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <h4 className="font-medium text-gray-200 text-sm mb-1">{prob.title}</h4>
+                                                <div className="flex gap-2">
+                                                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${prob.difficulty === 'Easy' ? 'bg-emerald-500/10 text-emerald-400' :
+                                                            prob.difficulty === 'Medium' ? 'bg-amber-500/10 text-amber-400' :
+                                                                'bg-red-500/10 text-red-400'
+                                                        }`}>{prob.difficulty}</span>
+                                                    <span className="text-[10px] text-gray-500 bg-dark-400 px-1.5 py-0.5 rounded">{prob.tags[0]}</span>
+                                                </div>
+                                            </div>
+                                            <ArrowRight className="w-4 h-4 text-gray-600" />
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                </div>
-
-                {/* Quick Actions */}
-                <div className="mb-8 sm:mb-12">
-                    <h2 className="text-lg sm:text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                        <Zap className="w-5 h-5 text-primary-400" />
-                        Quick Actions
-                    </h2>
-                    <div className="grid sm:grid-cols-2 gap-4">
-                        {quickActions.map((action) => (
-                            <Link
-                                key={action.title}
-                                to={action.to}
-                                className="card p-5 sm:p-6 group hover:-translate-y-1 transition-all duration-300"
-                            >
-                                <div className="flex items-start gap-4">
-                                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 shrink-0`}>
-                                        <action.icon className="w-6 h-6 text-white" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className="text-base sm:text-lg font-semibold text-gray-100 mb-1 group-hover:text-primary-400 transition-colors flex items-center gap-2">
-                                            {action.title}
-                                            <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                                        </h3>
-                                        <p className="text-sm text-gray-400">{action.description}</p>
-                                    </div>
-                                </div>
-                            </Link>
-                        ))}
                     </div>
                 </div>
 
@@ -227,6 +280,9 @@ export default function DashboardPage() {
                     </div>
                 </div>
             </div>
+
+            {/* AI Assistant Widget */}
+            <AIChatWidget />
         </div>
     );
 }

@@ -95,7 +95,7 @@ function FindSlotsTab() {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
             {slots.map((slot) => {
-                const isMySlot = slot.interviewer?._id === user._id;
+                const isMySlot = String(slot.interviewer?._id) === String(user?._id);
 
                 return (
                     <div
