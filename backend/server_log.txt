@@ -1,0 +1,3 @@
+2026-02-12T23:45:01.260Z - GET /api/interviews/slots
+2026-02-12T23:45:06.623Z - PUT /api/interviews/slots/698e5cdc89dab47f25919e30/book
+2026-02-12T23:45:10.106Z - GET /api/interviews/my-slots

@@ -59,6 +59,7 @@ export default function SchedulePage() {
 
 function FindSlotsTab() {
     const queryClient = useQueryClient();
+    const { user } = useUser(); // Get current user
     const { data: slots, isLoading } = useQuery({
         queryKey: ["openSlots"],
         queryFn: async () => {
@@ -93,60 +94,66 @@ function FindSlotsTab() {
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
-            {slots.map((slot) => (
-                <div
-                    key={slot._id}
-                    className="card p-6 flex flex-col gap-4 border-l-4 border-l-primary-500 hover:translate-y-[-2px] transition-transform"
-                >
-                    <div className="flex items-center gap-3 pb-4 border-b border-dark-300/50">
-                        {slot.interviewer?.image ? (
-                            <img
-                                src={slot.interviewer.image}
-                                alt={slot.interviewer.name}
-                                className="w-12 h-12 rounded-full object-cover ring-2 ring-primary-500/30"
-                            />
-                        ) : (
-                            <div className="w-12 h-12 rounded-full bg-dark-300 flex items-center justify-center">
-                                <User className="w-6 h-6 text-gray-400" />
-                            </div>
-                        )}
-                        <div>
-                            <h3 className="font-semibold text-white">{slot.interviewer?.name}</h3>
-                            <span className="text-xs text-primary-400 font-medium px-2 py-0.5 rounded bg-primary-500/10">
-                                Interviewer
-                            </span>
-                        </div>
-                    </div>
+            {slots.map((slot) => {
+                const isMySlot = slot.interviewer?._id === user._id;
 
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-gray-300">
-                            <Calendar className="w-4 h-4 text-gray-500" />
-                            <span>{new Date(slot.startTime).toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-gray-300">
-                            <Clock className="w-4 h-4 text-gray-500" />
-                            <span>
-                                {new Date(slot.startTime).toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                })}
-                            </span>
-                        </div>
-                    </div>
-
-                    <button
-                        onClick={() => {
-                            if (window.confirm("Confirm booking this interview?")) {
-                                bookMutation.mutate(slot._id);
-                            }
-                        }}
-                        disabled={bookMutation.isPending}
-                        className="btn-primary mt-auto w-full flex items-center justify-center gap-2"
+                return (
+                    <div
+                        key={slot._id}
+                        className={`card p-6 flex flex-col gap-4 border-l-4 transition-transform ${isMySlot ? 'border-l-gray-500 opacity-80' : 'border-l-primary-500 hover:translate-y-[-2px]'}`}
                     >
-                        {bookMutation.isPending ? <LoadingSpinner size="sm" /> : "Book Slot"}
-                    </button>
-                </div>
-            ))}
+                        <div className="flex items-center gap-3 pb-4 border-b border-dark-300/50">
+                            {slot.interviewer?.image ? (
+                                <img
+                                    src={slot.interviewer.image}
+                                    alt={slot.interviewer.name}
+                                    className="w-12 h-12 rounded-full object-cover ring-2 ring-primary-500/30"
+                                />
+                            ) : (
+                                <div className="w-12 h-12 rounded-full bg-dark-300 flex items-center justify-center">
+                                    <User className="w-6 h-6 text-gray-400" />
+                                </div>
+                            )}
+                            <div>
+                                <h3 className="font-semibold text-white">{slot.interviewer?.name} {isMySlot && "(You)"}</h3>
+                                <span className="text-xs text-primary-400 font-medium px-2 py-0.5 rounded bg-primary-500/10">
+                                    Interviewer
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-gray-300">
+                                <Calendar className="w-4 h-4 text-gray-500" />
+                                <span>{new Date(slot.startTime).toLocaleDateString()}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-300">
+                                <Clock className="w-4 h-4 text-gray-500" />
+                                <span>
+                                    {new Date(slot.startTime).toLocaleTimeString([], {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                    })}
+                                </span>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={() => {
+                                if (window.confirm("Confirm booking this interview?")) {
+                                    bookMutation.mutate(slot._id);
+                                }
+                            }}
+                            disabled={bookMutation.isPending || isMySlot}
+                            className={`mt-auto w-full flex items-center justify-center gap-2 ${isMySlot
+                                ? "bg-dark-300 text-gray-500 cursor-not-allowed py-2 rounded-md"
+                                : "btn-primary"}`}
+                        >
+                            {bookMutation.isPending ? <LoadingSpinner size="sm" /> : isMySlot ? "Your Slot" : "Book Slot"}
+                        </button>
+                    </div>
+                )
+            })}
         </div>
     );
 }

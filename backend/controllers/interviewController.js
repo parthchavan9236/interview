@@ -28,16 +28,22 @@ const createSlot = async (req, res) => {
 // Get all open slots (not created by me)
 const getOpenSlots = async (req, res) => {
     try {
-        const slots = await InterviewSlot.find({
+        console.log("Fetching open slots for user:", req.user?._id);
+        const query = {
             status: "open",
-            interviewer: { $ne: req.user._id }, // Don't show my own slots
-            startTime: { $gt: new Date() }, // Only future slots
-        })
+            // interviewer: { $ne: req.user._id }, // Commented out to allow seeing own slots
+            startTime: { $gt: new Date() },
+        };
+        console.log("Query:", query);
+
+        const slots = await InterviewSlot.find(query)
             .populate("interviewer", "name image")
             .sort({ startTime: 1 });
 
+        console.log(`Found ${slots.length} open slots`);
         res.json(slots);
     } catch (error) {
+        console.error("Error fetching open slots:", error);
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
