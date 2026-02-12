@@ -3,10 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useUser } from "../lib/useAuth";
 import SimplePeer from "simple-peer";
 import CodeEditor from "../components/CodeEditor";
+import Whiteboard from "../components/Whiteboard"; // Import Whiteboard
 import LoadingSpinner from "../components/LoadingSpinner";
-import { Mic, MicOff, Video, VideoOff, PhoneOff, MessageSquare, Copy } from "lucide-react";
+import { Mic, MicOff, Video, VideoOff, PhoneOff, MessageSquare, Copy, Code, PenTool } from "lucide-react";
 import toast from "react-hot-toast";
 import io from "socket.io-client";
+import { executeCode } from "../lib/api"; // Import executeCode
 
 // Global socket instance for this page if not using context
 let socket;
@@ -24,6 +26,13 @@ export default function InterviewPage() {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
     const [showChat, setShowChat] = useState(true);
+
+    // Advanced Features State
+    const [activeTab, setActiveTab] = useState("code"); // 'code' or 'whiteboard'
+    const [code, setCode] = useState("// Write your solution here\nconsole.log('Hello, World!');");
+    const [language, setLanguage] = useState("javascript");
+    const [output, setOutput] = useState("");
+    const [isRunning, setIsRunning] = useState(false);
 
     const myVideo = useRef();
     const remoteVideo = useRef();
@@ -71,10 +80,31 @@ export default function InterviewPage() {
                 socket.on("receive-message", (message) => {
                     setMessages((prev) => [...prev, { ...message, isMe: false }]);
                 });
+
+                // Code collaboration events
+                socket.on("code-change", (newCode) => {
+                    setCode(newCode);
+                });
+
+                socket.on("language-change", (newLang) => {
+                    setLanguage(newLang);
+                });
+
+                socket.on("code-output", (newOutput) => {
+                    setOutput(newOutput);
+                });
+
+                // Sync initial whiteboard/code state if needed (advanced)
             })
             .catch((err) => {
                 console.error("Media access error:", err);
-                toast.error("Could not access camera/microphone");
+                if (err.name === 'NotAllowedError') {
+                    toast.error("Permission denied. Please allow camera/microphone access in your browser settings.");
+                } else if (err.name === 'NotFoundError') {
+                    toast.error("No camera or microphone found on this device.");
+                } else {
+                    toast.error(`Could not access camera/microphone: ${err.message}`);
+                }
             });
 
         return () => {
@@ -184,6 +214,38 @@ export default function InterviewPage() {
         setNewMessage("");
     };
 
+    // --- Advanced Features Handlers ---
+
+    const handleCodeChange = (newCode) => {
+        setCode(newCode);
+        socket.emit("code-change", roomId, newCode);
+    };
+
+    const handleLanguageChange = (newLang) => {
+        setLanguage(newLang);
+        socket.emit("language-change", roomId, newLang);
+    };
+
+    const handleRunCode = async (codeToRun, langToRun) => {
+        setIsRunning(true);
+        setOutput("Running...");
+
+        // Notify others that code is running (optional)
+
+        try {
+            const res = await executeCode(langToRun, codeToRun);
+            const result = res.data.run.output || res.data.run.stderr || "No output";
+            setOutput(result);
+            socket.emit("code-output", roomId, result);
+        } catch (error) {
+            const errOutput = "Error executing code: " + (error.response?.data?.message || error.message);
+            setOutput(errOutput);
+            socket.emit("code-output", roomId, errOutput);
+        } finally {
+            setIsRunning(false);
+        }
+    };
+
     return (
         <div className="h-[calc(100vh-4rem)] flex flex-col lg:flex-row bg-dark-50">
             {/* Left Panel: Video & Code */}
@@ -221,18 +283,40 @@ export default function InterviewPage() {
                     )}
                 </div>
 
-                {/* Code Editor Area */}
+                {/* Workspace Tabs */}
                 <div className="flex-1 bg-dark-200 rounded-xl border border-dark-400 overflow-hidden flex flex-col">
-                    <div className="p-2 border-b border-dark-400 flex justify-between items-center bg-dark-300/50">
-                        <span className="text-sm font-semibold text-gray-300">Collaborative Editor</span>
-                        {/* Language selector could go here */}
+                    <div className="flex border-b border-dark-400">
+                        <button
+                            onClick={() => setActiveTab("code")}
+                            className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors ${activeTab === "code" ? "bg-dark-200 text-white border-b-2 border-primary-500" : "bg-dark-300/50 text-gray-400 hover:text-white"
+                                }`}
+                        >
+                            <Code className="w-4 h-4" /> Code
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("whiteboard")}
+                            className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors ${activeTab === "whiteboard" ? "bg-dark-200 text-white border-b-2 border-primary-500" : "bg-dark-300/50 text-gray-400 hover:text-white"
+                                }`}
+                        >
+                            <PenTool className="w-4 h-4" /> Whiteboard
+                        </button>
                     </div>
+
                     <div className="flex-1 relative">
-                        <CodeEditor
-                            problemId="interview-scratchpad"
-                            height="100%"
-                            defaultLanguage="javascript"
-                        />
+                        {activeTab === "code" ? (
+                            <CodeEditor
+                                defaultCode={code}
+                                language={language}
+                                onCodeChange={handleCodeChange}
+                                onLanguageChange={handleLanguageChange}
+                                onRun={handleRunCode}
+                                isRunning={isRunning}
+                                output={output}
+                                height="100%"
+                            />
+                        ) : (
+                            <Whiteboard socket={socket} roomId={roomId} />
+                        )}
                     </div>
                 </div>
 

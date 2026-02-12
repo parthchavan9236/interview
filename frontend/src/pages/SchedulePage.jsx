@@ -8,6 +8,7 @@ import { Calendar, Clock, Plus, User, Video, CheckCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function SchedulePage() {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("find"); // 'find' or 'my'
     const [isCreating, setIsCreating] = useState(false);
 
@@ -19,6 +20,13 @@ export default function SchedulePage() {
                     <p className="text-gray-400">Practice with peers in real-time coding sessions</p>
                 </div>
                 <div className="flex bg-dark-200 p-1 rounded-lg">
+                    <button
+                        onClick={() => navigate(`/room/instant-${Date.now()}`)}
+                        className="px-4 py-2 rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 mr-2"
+                    >
+                        <Video className="w-4 h-4 inline mr-2" />
+                        Instant Meeting
+                    </button>
                     <button
                         onClick={() => setActiveTab("find")}
                         className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "find"
