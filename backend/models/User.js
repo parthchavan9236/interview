@@ -27,9 +27,15 @@ const userSchema = new mongoose.Schema(
         },
         role: {
             type: String,
-            enum: ["interviewer", "candidate"],
+            enum: ["interviewer", "candidate", "admin"],
             default: "candidate",
         },
+        solvedProblems: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Problem",
+            },
+        ],
     },
     { timestamps: true }
 );

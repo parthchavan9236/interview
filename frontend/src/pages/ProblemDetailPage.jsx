@@ -11,6 +11,7 @@ import {
     setAuthToken,
 } from "../lib/api";
 import CodeEditor from "../components/CodeEditor";
+import DiscussionSection from "../components/DiscussionSection";
 import LoadingSpinner from "../components/LoadingSpinner";
 import {
     CheckCircle,
@@ -22,6 +23,7 @@ import {
     History,
     Code2,
     ChevronLeft,
+    MessageSquare,
 } from "lucide-react";
 
 export default function ProblemDetailPage() {
@@ -194,7 +196,7 @@ export default function ProblemDetailPage() {
                         </div>
                     )}
                 </div>
-            ) : (
+            ) : activeTab === "submissions" ? (
                 <div>
                     <h3 className="text-base sm:text-lg font-semibold text-white mb-4">
                         Your Submissions
@@ -215,8 +217,8 @@ export default function ProblemDetailPage() {
                                             )}
                                             <span
                                                 className={`text-sm font-semibold ${sub.status === "accepted"
-                                                        ? "text-emerald-400"
-                                                        : "text-red-400"
+                                                    ? "text-emerald-400"
+                                                    : "text-red-400"
                                                     }`}
                                             >
                                                 {sub.status === "accepted" ? "Accepted" : "Wrong Answer"}
@@ -240,6 +242,8 @@ export default function ProblemDetailPage() {
                         </div>
                     )}
                 </div>
+            ) : (
+                <DiscussionSection problemId={id} />
             )}
         </div>
     );
@@ -251,8 +255,8 @@ export default function ProblemDetailPage() {
                 <button
                     onClick={() => setMobilePanel("description")}
                     className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-all ${mobilePanel === "description"
-                            ? "border-primary-500 text-primary-400 bg-primary-500/5"
-                            : "border-transparent text-gray-500"
+                        ? "border-primary-500 text-primary-400 bg-primary-500/5"
+                        : "border-transparent text-gray-500"
                         }`}
                 >
                     <FileText className="w-4 h-4" />
@@ -261,8 +265,8 @@ export default function ProblemDetailPage() {
                 <button
                     onClick={() => setMobilePanel("editor")}
                     className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-all ${mobilePanel === "editor"
-                            ? "border-primary-500 text-primary-400 bg-primary-500/5"
-                            : "border-transparent text-gray-500"
+                        ? "border-primary-500 text-primary-400 bg-primary-500/5"
+                        : "border-transparent text-gray-500"
                         }`}
                 >
                     <Code2 className="w-4 h-4" />
@@ -281,13 +285,14 @@ export default function ProblemDetailPage() {
                         {[
                             { id: "description", label: "Description", icon: FileText },
                             { id: "submissions", label: "Submissions", icon: History },
+                            { id: "discussion", label: "Discussion", icon: MessageSquare },
                         ].map((tab) => (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 transition-all ${activeTab === tab.id
-                                        ? "border-primary-500 text-primary-400 bg-primary-500/5"
-                                        : "border-transparent text-gray-500 hover:text-gray-300"
+                                    ? "border-primary-500 text-primary-400 bg-primary-500/5"
+                                    : "border-transparent text-gray-500 hover:text-gray-300"
                                     }`}
                             >
                                 <tab.icon className="w-4 h-4" />
@@ -301,13 +306,14 @@ export default function ProblemDetailPage() {
                         {[
                             { id: "description", label: "Description" },
                             { id: "submissions", label: "Submissions" },
+                            { id: "discussion", label: "Discussion" },
                         ].map((tab) => (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex-1 px-3 py-2.5 text-xs font-medium transition-all ${activeTab === tab.id
-                                        ? "text-primary-400 bg-primary-500/10"
-                                        : "text-gray-500"
+                                    ? "text-primary-400 bg-primary-500/10"
+                                    : "text-gray-500"
                                     }`}
                             >
                                 {tab.label}

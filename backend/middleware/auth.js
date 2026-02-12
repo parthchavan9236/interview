@@ -58,7 +58,16 @@ const protectRoute = async (req, res, next) => {
     } catch (error) {
         console.error("Auth middleware error:", error);
         res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ message: "Internal server error" });
     }
 };
 
-module.exports = { protectRoute };
+const protectAdmin = (req, res, next) => {
+    if (req.user && req.user.role === "admin") {
+        next();
+    } else {
+        res.status(403).json({ message: "Not authorized as an admin" });
+    }
+};
+
+module.exports = { protectRoute, protectAdmin };

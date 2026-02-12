@@ -22,6 +22,10 @@ import {
     LogIn,
     UserPlus,
     User,
+    Trophy,
+    Shield,
+    Video,
+    FileText,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -94,7 +98,9 @@ export default function Navbar() {
         { path: "/", label: "Home", icon: Home },
         ...(isSignedIn ? [{ path: "/dashboard", label: "Dashboard", icon: LayoutDashboard }] : []),
         { path: "/problems", label: "Problems", icon: BookOpen },
-        { path: "/interviews", label: "Interviews", icon: Users },
+        { path: "/leaderboard", label: "Leaderboard", icon: Trophy },
+        { path: "/interviews", label: "Interviews", icon: Video },
+        ...(user?.role === "admin" ? [{ path: "/admin", label: "Admin", icon: Shield }] : []),
     ];
 
     const isActive = (path) => location.pathname === path;

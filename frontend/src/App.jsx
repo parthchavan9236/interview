@@ -10,6 +10,11 @@ import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import DashboardPage from "./pages/DashboardPage";
 import ProfilePage from "./pages/ProfilePage";
+import LeaderboardPage from "./pages/LeaderboardPage";
+import AdminPage from "./pages/AdminPage";
+import AdminRoute from "./components/AdminRoute";
+import SchedulePage from "./pages/SchedulePage";
+import ResumePage from "./pages/ResumePage";
 
 function ProtectedRoute({ children }) {
     const { isSignedIn, isLoaded } = useAuth();
@@ -89,6 +94,38 @@ function App() {
                             <ProtectedRoute>
                                 <ProfilePage />
                             </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/interviews"
+                        element={
+                            <ProtectedRoute>
+                                <SchedulePage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/resume"
+                        element={
+                            <ProtectedRoute>
+                                <ResumePage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/leaderboard"
+                        element={
+                            <ProtectedRoute>
+                                <LeaderboardPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin"
+                        element={
+                            <AdminRoute>
+                                <AdminPage />
+                            </AdminRoute>
                         }
                     />
                     <Route

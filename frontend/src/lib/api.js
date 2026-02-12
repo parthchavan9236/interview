@@ -66,6 +66,12 @@ export const getProblemSubmissions = (problemId) =>
     api.get(`/submissions/problem/${problemId}`);
 export const getSubmissionStats = () => api.get("/submissions/stats");
 
+// ─── Interview API ────────────────────────────────────────────────
+export const createSlot = (data) => api.post("/interviews/slots", data);
+export const getOpenSlots = () => api.get("/interviews/slots");
+export const getMySlots = () => api.get("/interviews/my-slots");
+export const bookSlot = (id) => api.put(`/interviews/slots/${id}/book`);
+
 // ─── Code Execution API ───────────────────────────────────────────
 export const executeCode = (data) => api.post("/code/execute", data);
 export const getLanguages = () => api.get("/code/languages");
@@ -81,5 +87,13 @@ export const getStreamToken = () => api.get("/interviews/stream-token");
 // ─── AI API ──────────────────────────────────────────────────────
 export const getAIHint = (data) => api.post("/ai/hint", data);
 export const analyzeCode = (data) => api.post("/ai/analyze", data);
+
+// ─── Comment API ──────────────────────────────────────────────────
+export const getComments = (problemId) => api.get(`/comments/${problemId}`);
+export const addComment = (data) => api.post("/comments", data);
+
+// ─── User API ─────────────────────────────────────────────────────
+export const getLeaderboard = () => api.get("/users/leaderboard");
+export const getAllUsers = () => api.get("/users");
 
 export default api;

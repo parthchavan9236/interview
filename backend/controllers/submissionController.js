@@ -61,6 +61,14 @@ const createSubmission = async (req, res) => {
             results,
         });
 
+        // Update User's solvedProblems if accepted
+        if (status === "accepted") {
+            const User = require("../models/User");
+            await User.findByIdAndUpdate(req.user._id, {
+                $addToSet: { solvedProblems: problemId },
+            });
+        }
+
         res.status(201).json(submission);
     } catch (error) {
         console.error("Submission error:", error);

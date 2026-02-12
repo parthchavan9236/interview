@@ -1,160 +1,90 @@
-const Interview = require("../models/Interview");
-const User = require("../models/User");
-const { StreamClient } = require("@stream-io/node-sdk");
-const { v4: uuidv4 } = require("crypto");
+const InterviewSlot = require("../models/InterviewSlot");
 
-// Helper to generate a unique call ID
-function generateCallId() {
-    return `interview-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-}
-
-// Create a new interview
-const createInterview = async (req, res) => {
+// Create a new interview slot
+const createSlot = async (req, res) => {
     try {
-        const { title, description, candidateEmail, scheduledAt, problems } = req.body;
+        console.log("Create slot request body:", req.body);
+        console.log("User creating slot:", req.user?._id);
 
-        if (!title || !scheduledAt) {
-            return res.status(400).json({ message: "Title and scheduled date are required" });
+        const { startTime } = req.body;
+
+        if (!startTime) {
+            return res.status(400).json({ message: "Start time is required" });
         }
 
-        // Find candidate by email if provided
-        let candidate = null;
-        if (candidateEmail) {
-            candidate = await User.findOne({ email: candidateEmail });
-        }
-
-        const streamCallId = generateCallId();
-
-        const interview = await Interview.create({
-            title,
-            description: description || "",
+        const slot = await InterviewSlot.create({
             interviewer: req.user._id,
-            candidate: candidate?._id || null,
-            candidateEmail: candidateEmail || "",
-            scheduledAt,
-            streamCallId,
-            problems: problems || [],
+            startTime: new Date(startTime),
         });
 
-        const populatedInterview = await Interview.findById(interview._id)
-            .populate("interviewer", "name email image")
-            .populate("candidate", "name email image")
-            .populate("problems", "title difficulty");
-
-        res.status(201).json(populatedInterview);
+        console.log("Slot created:", slot);
+        res.status(201).json(slot);
     } catch (error) {
-        console.error("Create interview error:", error);
+        console.error("Create slot error:", error);
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
-// Get all interviews for the current user
-const getInterviews = async (req, res) => {
+// Get all open slots (not created by me)
+const getOpenSlots = async (req, res) => {
     try {
-        const interviews = await Interview.find({
-            $or: [
-                { interviewer: req.user._id },
-                { candidate: req.user._id },
-                { candidateEmail: req.user.email },
-            ],
+        const slots = await InterviewSlot.find({
+            status: "open",
+            interviewer: { $ne: req.user._id }, // Don't show my own slots
+            startTime: { $gt: new Date() }, // Only future slots
         })
-            .populate("interviewer", "name email image")
-            .populate("candidate", "name email image")
-            .populate("problems", "title difficulty")
-            .sort({ scheduledAt: -1 });
+            .populate("interviewer", "name image")
+            .sort({ startTime: 1 });
 
-        res.status(200).json(interviews);
+        res.json(slots);
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
-// Get a single interview
-const getInterviewById = async (req, res) => {
+// Get my slots (created or booked)
+const getMySlots = async (req, res) => {
     try {
-        const interview = await Interview.findById(req.params.id)
-            .populate("interviewer", "name email image")
-            .populate("candidate", "name email image")
-            .populate("problems", "title difficulty");
+        const slots = await InterviewSlot.find({
+            $or: [{ interviewer: req.user._id }, { candidate: req.user._id }],
+        })
+            .populate("interviewer", "name image")
+            .populate("candidate", "name image")
+            .sort({ startTime: 1 });
 
-        if (!interview) {
-            return res.status(404).json({ message: "Interview not found" });
+        res.json(slots);
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+// Book a slot
+const bookSlot = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const slot = await InterviewSlot.findById(id);
+
+        if (!slot) {
+            return res.status(404).json({ message: "Slot not found" });
         }
 
-        res.status(200).json(interview);
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message });
-    }
-};
-
-// Update interview
-const updateInterview = async (req, res) => {
-    try {
-        const interview = await Interview.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true }
-        )
-            .populate("interviewer", "name email image")
-            .populate("candidate", "name email image");
-
-        if (!interview) {
-            return res.status(404).json({ message: "Interview not found" });
+        if (slot.status !== "open") {
+            return res.status(400).json({ message: "Slot is not available" });
         }
 
-        res.status(200).json(interview);
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message });
-    }
-};
-
-// Delete interview
-const deleteInterview = async (req, res) => {
-    try {
-        const interview = await Interview.findByIdAndDelete(req.params.id);
-
-        if (!interview) {
-            return res.status(404).json({ message: "Interview not found" });
+        if (slot.interviewer.toString() === req.user._id.toString()) {
+            return res.status(400).json({ message: "Cannot book your own slot" });
         }
 
-        res.status(200).json({ message: "Interview deleted" });
+        slot.candidate = req.user._id;
+        slot.status = "booked";
+        await slot.save();
+
+        res.json(slot);
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
-// Generate Stream token for video call
-const getStreamToken = async (req, res) => {
-    try {
-        const apiKey = process.env.STREAM_API_KEY;
-        const apiSecret = process.env.STREAM_API_SECRET;
-
-        if (!apiKey || !apiSecret || apiKey === "your_stream_api_key") {
-            return res.status(200).json({
-                token: "demo_token",
-                apiKey: "demo_key",
-                message: "Stream not configured - using demo mode",
-            });
-        }
-
-        const client = new StreamClient(apiKey, apiSecret);
-
-        const token = client.generateUserToken({
-            user_id: req.user.clerkId,
-        });
-
-        res.status(200).json({ token, apiKey });
-    } catch (error) {
-        console.error("Stream token error:", error);
-        res.status(500).json({ message: "Server error", error: error.message });
-    }
-};
-
-module.exports = {
-    createInterview,
-    getInterviews,
-    getInterviewById,
-    updateInterview,
-    deleteInterview,
-    getStreamToken,
-};
+module.exports = { createSlot, getOpenSlots, getMySlots, bookSlot };
