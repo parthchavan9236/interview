@@ -69,6 +69,8 @@ CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
 STREAM_API_KEY=your_key
 STREAM_API_SECRET=your_secret
+GEMINI_API_KEY=your_gemini_key
+
 ```
 
 Start the server:

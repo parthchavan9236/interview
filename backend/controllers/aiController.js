@@ -75,10 +75,10 @@ exports.chatWithAI = async (req, res) => {
 
     if (!process.env.GEMINI_API_KEY) {
         // Mock Response for Demo/Development
-        console.log("No GEMINI_API_KEY found. Using mock response.");
+        console.log("No valid GEMINI_API_KEY found. Using mock response.");
 
         // Simulate network delay for realism
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         const mockResponses = [
             "That's a great question! In a real interview, you should start by clarifying the requirements.",
@@ -95,7 +95,7 @@ exports.chatWithAI = async (req, res) => {
         const lowerMsg = message.toLowerCase();
 
         if (lowerMsg.includes("hello") || lowerMsg.includes("hi")) {
-            reply = "Hello! I'm GOD Ai. Ready to practice?";
+            reply = "Hello! I'm your AI Interview Assistant (Demo Mode). Ready to practice?";
         } else if (lowerMsg.includes("complexity") || lowerMsg.includes("big o")) {
             reply = "Time and space complexity are crucial. Always analyze your algorithm's efficiency!";
         } else if (lowerMsg.includes("thanks") || lowerMsg.includes("thank you")) {
