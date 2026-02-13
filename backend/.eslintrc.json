@@ -1,0 +1,28 @@
+{
+    "env": {
+        "node": true,
+        "es2021": true,
+        "jest": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": "latest"
+    },
+    "rules": {
+        "no-unused-vars": [
+            "warn",
+            {
+                "argsIgnorePattern": "^_|next|req|res"
+            }
+        ],
+        "no-console": "off",
+        "no-process-exit": "off",
+        "prefer-const": "warn",
+        "no-var": "error"
+    },
+    "ignorePatterns": [
+        "node_modules/",
+        "coverage/",
+        "tests/"
+    ]
+}

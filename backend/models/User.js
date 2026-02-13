@@ -61,6 +61,11 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             default: false
         },
+        organizationId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Organization",
+            default: null,
+        },
         solvedProblems: [
             {
                 type: mongoose.Schema.Types.ObjectId,

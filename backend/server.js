@@ -12,6 +12,9 @@ const connectDB = require("./config/db");
 const config = require("./config/environments");
 const logger = require("./services/logger");
 const { extractClientInfo } = require("./middleware/activityLogger");
+const responseTimeMiddleware = require("./middleware/responseTimeMiddleware");
+const systemMetricsService = require("./services/systemMetricsService");
+const configService = require("./services/configService");
 const inngest = require("./inngest/client");
 const { sendInterviewReminder, processSubmission } = require("./inngest/functions");
 
@@ -27,6 +30,11 @@ const adminRoutes = require("./routes/adminRoutes");
 const contestRoutes = require("./routes/contestRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const reportRoutes = require("./routes/reportRoutes");
+const recommendationRoutes = require("./routes/recommendationRoutes");
+const behaviorRoutes = require("./routes/behaviorRoutes");
+const metricsRoutes = require("./routes/metricsRoutes");
+const organizationRoutes = require("./routes/organizationRoutes");
+const aiInterviewRoutes = require("./routes/aiInterviewRoutes");
 
 const app = express();
 const PORT = config.port || 5000;
@@ -54,6 +62,9 @@ app.use("/api", limiter);
 // ── Activity Logging Middleware ──
 app.use(extractClientInfo);
 
+// ── Response Time Tracking (System Metrics) ──
+app.use(responseTimeMiddleware);
+
 // Request logger (Winston)
 app.use((req, res, next) => {
     logger.info(`${req.method} ${req.url}`, {
@@ -77,6 +88,11 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/contests", contestRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/recommendations", recommendationRoutes);
+app.use("/api/behavior", behaviorRoutes);
+app.use("/api/metrics", metricsRoutes);
+app.use("/api/organizations", organizationRoutes);
+app.use("/api/ai-interview", aiInterviewRoutes);
 
 // Inngest route for background jobs
 app.use(
@@ -268,7 +284,13 @@ async function seedProblems() {
 // ── Start Server ──
 connectDB()
     .then(async () => {
+        // Validate config on startup
+        try { configService.validate(); } catch (e) { logger.warn("Config validation:", e.message); }
+
         seedProblems();
+
+        // Start system metrics collection
+        systemMetricsService.start();
 
         // Ensure all model collections exist in MongoDB
         // (Collections are lazy-created by default — this forces their creation)
@@ -287,6 +309,11 @@ connectDB()
                 require("./models/PerformanceReport"),
                 require("./models/PlagiarismReport"),
                 require("./models/PushSubscription"),
+                require("./models/UserPerformanceMetrics"),
+                require("./models/BehaviorAnalytics"),
+                require("./models/SystemMetrics"),
+                require("./models/Organization"),
+                require("./models/AIInterviewSession"),
             ];
             for (const Model of models) {
                 await Model.createCollection();
@@ -310,6 +337,8 @@ connectDB()
         // ── Graceful Shutdown ──
         const gracefulShutdown = (signal) => {
             logger.info(`${signal} received. Starting graceful shutdown...`);
+            // Flush metrics before shutdown
+            systemMetricsService.stop().catch(() => { });
             server.close(() => {
                 logger.info("HTTP server closed.");
                 const mongoose = require("mongoose");

@@ -26,6 +26,10 @@ import {
     Shield,
     Video,
     FileText,
+    Bot,
+    BarChart3,
+    Building2,
+    Activity,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -102,9 +106,15 @@ export default function Navbar() {
         { path: "/interviews", label: "Interviews", icon: Video },
         ...(isSignedIn ? [
             { path: "/resume", label: "Resume", icon: FileText },
+            { path: "/ai-interview", label: "AI Interview", icon: Bot },
+            { path: "/recommendations", label: "Analytics", icon: BarChart3 },
+            { path: "/organizations", label: "Organizations", icon: Building2 },
             { path: "/profile", label: "Profile", icon: User },
         ] : []),
-        ...(user?.role === "admin" ? [{ path: "/admin", label: "Admin", icon: Shield }] : []),
+        ...(user?.role === "admin" ? [
+            { path: "/admin", label: "Admin", icon: Shield },
+            { path: "/system-monitor", label: "Monitor", icon: Activity },
+        ] : []),
     ];
 
     const isActive = (path) => location.pathname === path;
@@ -259,7 +269,7 @@ export default function Navbar() {
                     : "bg-dark/50 backdrop-blur-md"
                     }`}
             >
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="w-full px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
                         {/* Logo */}
                         <Link to="/" className="flex items-center gap-2.5 group">

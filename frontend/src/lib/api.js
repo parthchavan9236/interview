@@ -97,4 +97,35 @@ export const addComment = (data) => api.post("/comments", data);
 export const getLeaderboard = () => api.get("/users/leaderboard");
 export const getAllUsers = () => api.get("/users");
 
+// ─── Recommendations API ─────────────────────────────────────────
+export const getRecommendations = (limit = 10) => api.get(`/recommendations?limit=${limit}`);
+export const getPerformanceStats = () => api.get("/recommendations/stats");
+export const recalculateMetrics = () => api.post("/recommendations/recalculate");
+
+// ─── Behavior Analytics API ──────────────────────────────────────
+export const trackBehavior = (data) => api.post("/behavior/track", data);
+export const getReadinessScore = () => api.get("/behavior/readiness");
+export const getUserBehavior = (userId) => api.get(`/behavior/user/${userId}`);
+
+// ─── AI Interview API ────────────────────────────────────────────
+export const startAIInterview = (data) => api.post("/ai-interview/start", data);
+export const sendInterviewMessage = (id, message) => api.post(`/ai-interview/${id}/message`, { message });
+export const endAIInterview = (id) => api.post(`/ai-interview/${id}/end`);
+export const getInterviewHistory = (page = 1) => api.get(`/ai-interview/history?page=${page}`);
+export const getInterviewSession = (id) => api.get(`/ai-interview/${id}`);
+
+// ─── Organization API ────────────────────────────────────────────
+export const createOrganization = (data) => api.post("/organizations", data);
+export const getOrganizations = (page = 1) => api.get(`/organizations?page=${page}`);
+export const getOrganization = (id) => api.get(`/organizations/${id}`);
+export const addOrgMember = (id, data) => api.post(`/organizations/${id}/members`, data);
+export const removeOrgMember = (orgId, userId) => api.delete(`/organizations/${orgId}/members/${userId}`);
+export const getOrgLeaderboard = (id) => api.get(`/organizations/${id}/leaderboard`);
+export const getOrgAnalytics = (id) => api.get(`/organizations/${id}/analytics`);
+
+// ─── System Metrics API (Admin) ──────────────────────────────────
+export const getSystemHealth = () => api.get("/metrics/system");
+export const getSystemPerformance = (days = 7) => api.get(`/metrics/performance?days=${days}`);
+export const getEndpointStats = () => api.get("/metrics/endpoints");
+
 export default api;

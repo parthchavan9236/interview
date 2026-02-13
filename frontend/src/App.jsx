@@ -17,6 +17,10 @@ import SchedulePage from "./pages/SchedulePage";
 import ResumePage from "./pages/ResumePage";
 import InterviewPage from "./pages/InterviewPage";
 import AIAssistant from "./components/AIAssistant";
+import AIInterviewPage from "./pages/AIInterviewPage";
+import RecommendationsPage from "./pages/RecommendationsPage";
+import OrganizationsPage from "./pages/OrganizationsPage";
+import SystemMonitorPage from "./pages/SystemMonitorPage";
 
 function ProtectedRoute({ children }) {
     const { isSignedIn, isLoaded } = useAuth();
@@ -172,6 +176,38 @@ function App() {
                             <ProtectedRoute>
                                 <InterviewRoomPage />
                             </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/ai-interview"
+                        element={
+                            <ProtectedRoute>
+                                <AIInterviewPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/recommendations"
+                        element={
+                            <ProtectedRoute>
+                                <RecommendationsPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/organizations"
+                        element={
+                            <ProtectedRoute>
+                                <OrganizationsPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/system-monitor"
+                        element={
+                            <AdminRoute>
+                                <SystemMonitorPage />
+                            </AdminRoute>
                         }
                     />
                 </Routes>
