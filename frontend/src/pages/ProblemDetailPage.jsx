@@ -251,7 +251,7 @@ export default function ProblemDetailPage() {
     return (
         <div className="h-[calc(100vh-4rem)] flex flex-col">
             {/* Mobile Panel Toggle */}
-            <div className="lg:hidden flex border-b border-dark-400/30 bg-dark-50">
+            <div className="lg:hidden flex! border-b border-dark-400/30 bg-dark-50">
                 <button
                     onClick={() => setMobilePanel("description")}
                     className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-all ${mobilePanel === "description"
@@ -281,7 +281,7 @@ export default function ProblemDetailPage() {
                         }`}
                 >
                     {/* Desktop Tabs */}
-                    <div className="hidden lg:flex border-b border-dark-400/30 bg-dark-50">
+                    <div className="hidden lg:flex! border-b border-dark-400/30 bg-dark-50">
                         {[
                             { id: "description", label: "Description", icon: FileText },
                             { id: "submissions", label: "Submissions", icon: History },
@@ -302,7 +302,7 @@ export default function ProblemDetailPage() {
                     </div>
 
                     {/* Mobile secondary tabs (description/submissions) */}
-                    <div className="lg:hidden flex border-b border-dark-400/20 bg-dark-100/50">
+                    <div className="lg:hidden flex! border-b border-dark-400/20 bg-dark-100/50">
                         {[
                             { id: "description", label: "Description" },
                             { id: "submissions", label: "Submissions" },
@@ -326,7 +326,7 @@ export default function ProblemDetailPage() {
 
                 {/* Right Panel - Code Editor */}
                 <div
-                    className={`flex-1 flex flex-col overflow-hidden ${mobilePanel === "editor" ? "flex" : "hidden lg:flex"
+                    className={`flex-1 flex flex-col overflow-hidden ${mobilePanel === "editor" ? "flex!" : "hidden lg:flex!"
                         }`}
                 >
                     <div className="flex-1 min-h-0">

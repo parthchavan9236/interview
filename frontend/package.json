@@ -31,7 +31,7 @@
         "socket.io-client": "^4.8.3",
         "stream-browserify": "^3.0.0",
         "stream-chat": "^8.45.0",
-        "stream-chat-react": "^12.8.0",
+        "stream-chat-react": "^13.13.6",
         "tldraw": "^4.3.1"
     },
     "devDependencies": {
