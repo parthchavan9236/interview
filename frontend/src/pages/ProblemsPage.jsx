@@ -74,7 +74,7 @@ export default function ProblemsPage() {
 
                 {/* Difficulty Filter */}
                 <div className="flex items-center gap-2">
-                    <Filter className="w-4 h-4 text-gray-500 hidden sm:block flex-shrink-0" />
+                    <Filter className="w-4 h-4 text-gray-500 hidden sm:block! flex-shrink-0" />
                     <div className="flex gap-1 bg-dark-100 border border-dark-400/30 rounded-xl p-1 w-full sm:w-auto overflow-x-auto scrollbar-hide">
                         {DIFFICULTIES.map((d) => (
                             <button
