@@ -16,6 +16,7 @@ import AdminRoute from "./components/AdminRoute";
 import SchedulePage from "./pages/SchedulePage";
 import ResumePage from "./pages/ResumePage";
 import InterviewPage from "./pages/InterviewPage";
+import AIAssistant from "./components/AIAssistant";
 
 function ProtectedRoute({ children }) {
     const { isSignedIn, isLoaded } = useAuth();
@@ -179,6 +180,7 @@ function App() {
                     />
                 </Routes>
             </main>
+            <AIAssistant />
         </div>
     );
 }

@@ -158,8 +158,8 @@ function CustomSignUp() {
                                     type="button"
                                     onClick={() => updateField("role", "candidate")}
                                     className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-300 ${formData.role === "candidate"
-                                            ? "border-primary-500 bg-primary-500/10 text-primary-300"
-                                            : "border-dark-400/30 bg-dark-300/20 text-gray-400 hover:border-dark-400/60"
+                                        ? "border-primary-500 bg-primary-500/10 text-primary-300"
+                                        : "border-dark-400/30 bg-dark-300/20 text-gray-400 hover:border-dark-400/60"
                                         }`}
                                 >
                                     <Users className="w-5 h-5" />
@@ -170,8 +170,8 @@ function CustomSignUp() {
                                     type="button"
                                     onClick={() => updateField("role", "interviewer")}
                                     className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-300 ${formData.role === "interviewer"
-                                            ? "border-primary-500 bg-primary-500/10 text-primary-300"
-                                            : "border-dark-400/30 bg-dark-300/20 text-gray-400 hover:border-dark-400/60"
+                                        ? "border-primary-500 bg-primary-500/10 text-primary-300"
+                                        : "border-dark-400/30 bg-dark-300/20 text-gray-400 hover:border-dark-400/60"
                                         }`}
                                 >
                                     <Briefcase className="w-5 h-5" />
@@ -206,6 +206,20 @@ function CustomSignUp() {
                         Sign in
                     </Link>
                 </p>
+
+                {/* Platform Trust Indicators */}
+                <div className="mt-8 grid grid-cols-3 gap-3">
+                    {[
+                        { label: "Practice", sub: "50+ Coding Problems" },
+                        { label: "Interview", sub: "Live Video Rooms" },
+                        { label: "Compete", sub: "Contest Mode" },
+                    ].map((item) => (
+                        <div key={item.label} className="text-center p-2 rounded-lg bg-dark-300/20">
+                            <div className="text-xs font-semibold text-gray-300">{item.label}</div>
+                            <div className="text-[10px] text-gray-500">{item.sub}</div>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );

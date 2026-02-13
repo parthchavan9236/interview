@@ -47,8 +47,17 @@ const problemSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
         },
+        isDeleted: {
+            type: Boolean,
+            default: false,
+        },
     },
     { timestamps: true }
 );
+
+// Performance indexes
+problemSchema.index({ difficulty: 1 });
+problemSchema.index({ tags: 1 });
+problemSchema.index({ isDeleted: 1 });
 
 module.exports = mongoose.model("Problem", problemSchema);

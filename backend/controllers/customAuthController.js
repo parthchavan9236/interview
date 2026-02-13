@@ -57,6 +57,8 @@ const register = async (req, res) => {
     }
 };
 
+const { updateStreak } = require("./gamificationController");
+
 // POST /api/auth/login
 const login = async (req, res) => {
     try {
@@ -84,6 +86,9 @@ const login = async (req, res) => {
         if (!isMatch) {
             return res.status(401).json({ message: "Invalid email or password" });
         }
+
+        // Update streak
+        await updateStreak(user);
 
         const token = generateToken(user._id);
 

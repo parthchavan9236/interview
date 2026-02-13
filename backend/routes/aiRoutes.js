@@ -5,6 +5,8 @@ const { protectRoute } = require("../middleware/auth");
 
 router.post("/hint", protectRoute, getAIHint);
 router.post("/analyze", protectRoute, analyzeCode);
+router.post("/analyze", protectRoute, analyzeCode);
 router.post("/chat", protectRoute, chatWithAI);
+router.post("/interview-feedback", protectRoute, require("../controllers/aiController").generateInterviewFeedback);
 
 module.exports = router;

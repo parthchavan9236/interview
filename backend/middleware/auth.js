@@ -70,4 +70,12 @@ const protectAdmin = (req, res, next) => {
     }
 };
 
-module.exports = { protectRoute, protectAdmin };
+const protectInterviewer = (req, res, next) => {
+    if (req.user && (req.user.role === "interviewer" || req.user.role === "admin")) {
+        next();
+    } else {
+        res.status(403).json({ message: "Not authorized as an interviewer" });
+    }
+};
+
+module.exports = { protectRoute, protectAdmin, protectInterviewer };

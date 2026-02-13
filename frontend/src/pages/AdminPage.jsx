@@ -12,14 +12,24 @@ export default function AdminPage() {
 
     return (
         <div className="min-h-[calc(100vh-4rem)] p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-                <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/25 flex-shrink-0">
+                        <Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-white">Admin Dashboard</h1>
+                        <p className="text-gray-400 text-sm hidden sm:block">
+                            Manage problems, users, and monitor platform health with full audit logging.
+                        </p>
+                    </div>
+                </div>
                 <div className="flex bg-dark-200 p-1 rounded-lg">
                     <button
                         onClick={() => setActiveTab("problems")}
                         className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "problems"
-                                ? "bg-primary-500 text-white shadow-lg"
-                                : "text-gray-400 hover:text-white"
+                            ? "bg-primary-500 text-white shadow-lg"
+                            : "text-gray-400 hover:text-white"
                             }`}
                     >
                         <div className="flex items-center gap-2">
@@ -30,8 +40,8 @@ export default function AdminPage() {
                     <button
                         onClick={() => setActiveTab("users")}
                         className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "users"
-                                ? "bg-primary-500 text-white shadow-lg"
-                                : "text-gray-400 hover:text-white"
+                            ? "bg-primary-500 text-white shadow-lg"
+                            : "text-gray-400 hover:text-white"
                             }`}
                     >
                         <div className="flex items-center gap-2">
@@ -40,6 +50,15 @@ export default function AdminPage() {
                         </div>
                     </button>
                 </div>
+            </div>
+
+            {/* Admin Capabilities Info */}
+            <div className="bg-purple-500/5 border border-purple-500/10 rounded-xl p-4 mb-6 sm:mb-8">
+                <p className="text-xs text-gray-400 leading-relaxed">
+                    <span className="text-purple-400 font-medium">Admin Controls:</span>{" "}
+                    CRUD operations on problems & users • Role-based access control (RBAC) • Activity audit logging with IP/device tracking •
+                    Suspicious submission flagging • Soft-delete support • System health monitoring via <code className="text-primary-400">/api/health</code>
+                </p>
             </div>
 
             {activeTab === "problems" && (
@@ -128,10 +147,10 @@ function ProblemsTab({ editingProblem, setEditingProblem }) {
                             <div className="flex gap-3 text-sm">
                                 <span
                                     className={`px-2 py-0.5 rounded text-xs font-semibold ${problem.difficulty === "Easy"
-                                            ? "bg-emerald-500/10 text-emerald-400"
-                                            : problem.difficulty === "Medium"
-                                                ? "bg-amber-500/10 text-amber-400"
-                                                : "bg-rose-500/10 text-rose-400"
+                                        ? "bg-emerald-500/10 text-emerald-400"
+                                        : problem.difficulty === "Medium"
+                                            ? "bg-amber-500/10 text-amber-400"
+                                            : "bg-rose-500/10 text-rose-400"
                                         }`}
                                 >
                                     {problem.difficulty}
@@ -321,8 +340,8 @@ function UsersTab() {
                                 <td className="px-6 py-4">
                                     <span
                                         className={`px-2 py-0.5 rounded text-xs font-semibold ${user.role === "admin"
-                                                ? "bg-purple-500/10 text-purple-400"
-                                                : "bg-blue-500/10 text-blue-400"
+                                            ? "bg-purple-500/10 text-purple-400"
+                                            : "bg-blue-500/10 text-blue-400"
                                             }`}
                                     >
                                         {user.role}

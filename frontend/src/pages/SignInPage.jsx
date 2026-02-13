@@ -142,6 +142,20 @@ function CustomSignIn() {
                         Sign up
                     </Link>
                 </p>
+
+                {/* Platform Highlights */}
+                <div className="mt-8 grid grid-cols-3 gap-3">
+                    {[
+                        { label: "50+ Problems", sub: "DSA & Algorithms" },
+                        { label: "Live Interviews", sub: "WebRTC Video Rooms" },
+                        { label: "AI Assistant", sub: "Smart Code Help" },
+                    ].map((item) => (
+                        <div key={item.label} className="text-center p-2 rounded-lg bg-dark-300/20">
+                            <div className="text-xs font-semibold text-gray-300">{item.label}</div>
+                            <div className="text-[10px] text-gray-500">{item.sub}</div>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );

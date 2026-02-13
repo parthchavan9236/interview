@@ -79,7 +79,19 @@ const syncUser = async (req, res) => {
     try {
         const { clerkId, name, email, image } = req.body;
 
+        // Try to find user by clerkId
         let user = await User.findOne({ clerkId });
+
+        // If not found by clerkId, try by email to link accounts
+        if (!user && email) {
+            user = await User.findOne({ email });
+            if (user) {
+                // Link existing account to Clerk
+                user.clerkId = clerkId;
+                if (image) user.image = image;
+                await user.save();
+            }
+        }
 
         if (!user) {
             user = await User.create({
@@ -90,6 +102,8 @@ const syncUser = async (req, res) => {
                 role: "candidate",
             });
         } else {
+            // Update existing user
+            user.clerkId = clerkId; // Ensure clerkId is set
             user.name = name || user.name;
             user.email = email || user.email;
             user.image = image || user.image;

@@ -30,6 +30,37 @@ const userSchema = new mongoose.Schema(
             enum: ["interviewer", "candidate", "admin"],
             default: "candidate",
         },
+        isBlocked: {
+            type: Boolean,
+            default: false
+        },
+        totalPoints: {
+            type: Number,
+            default: 0
+        },
+        badges: [
+            {
+                name: String,
+                dateEarned: { type: Date, default: Date.now },
+                icon: String,
+                description: String
+            }
+        ],
+        streak: {
+            currentStreak: { type: Number, default: 0 },
+            longestStreak: { type: Number, default: 0 },
+            lastActiveDate: {
+                type: Date, default: null
+            }
+        },
+        isDeleted: {
+            type: Boolean,
+            default: false
+        },
+        isFlagged: {
+            type: Boolean,
+            default: false
+        },
         solvedProblems: [
             {
                 type: mongoose.Schema.Types.ObjectId,
@@ -59,5 +90,11 @@ userSchema.methods.toJSON = function () {
     delete obj.password;
     return obj;
 };
+
+// Performance indexes
+userSchema.index({ email: 1 });
+userSchema.index({ totalPoints: -1 });
+userSchema.index({ role: 1 });
+userSchema.index({ isDeleted: 1 });
 
 module.exports = mongoose.model("User", userSchema);

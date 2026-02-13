@@ -4,9 +4,40 @@ import { useAuth } from "../lib/useAuth";
 import { getProblems, setAuthToken } from "../lib/api";
 import ProblemCard from "../components/ProblemCard";
 import LoadingSpinner from "../components/LoadingSpinner";
-import { Search, Filter, BookOpen, X } from "lucide-react";
+import { Search, Filter, BookOpen, X, Code2, Zap, Target, Brain, Trophy } from "lucide-react";
 
 const DIFFICULTIES = ["All", "Easy", "Medium", "Hard"];
+
+const practiceInfo = [
+    {
+        icon: Code2,
+        title: "Multi-Language Support",
+        description: "JavaScript & Python with full Monaco editor IntelliSense",
+        color: "text-blue-400",
+        bg: "bg-blue-500/10",
+    },
+    {
+        icon: Zap,
+        title: "Instant Evaluation",
+        description: "Sandboxed code execution with automated test case validation",
+        color: "text-amber-400",
+        bg: "bg-amber-500/10",
+    },
+    {
+        icon: Target,
+        title: "Difficulty Levels",
+        description: "Easy, Medium & Hard problems for structured progression",
+        color: "text-emerald-400",
+        bg: "bg-emerald-500/10",
+    },
+    {
+        icon: Brain,
+        title: "DSA Categories",
+        description: "Arrays, Trees, Graphs, DP, and more core CS topics",
+        color: "text-purple-400",
+        bg: "bg-purple-500/10",
+    },
+];
 
 export default function ProblemsPage() {
     const [search, setSearch] = useState("");
@@ -41,13 +72,51 @@ export default function ProblemsPage() {
                             Practice Problems
                         </h1>
                         <p className="text-gray-400 text-sm sm:text-base hidden sm:block">
-                            Sharpen your coding skills with our curated problem collection.
+                            Master data structures & algorithms with our curated problem library — built for interview prep excellence.
                         </p>
                     </div>
                 </div>
                 <p className="text-gray-400 text-sm sm:hidden mt-1">
-                    Sharpen your coding skills with our curated collection.
+                    Master data structures & algorithms with curated challenges.
                 </p>
+            </div>
+
+            {/* Practice Features Banner */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6 sm:mb-8">
+                {practiceInfo.map((info, idx) => (
+                    <div
+                        key={info.title}
+                        className="glass-card p-3 sm:p-4 animate-slide-up"
+                        style={{ animationDelay: `${idx * 80}ms` }}
+                    >
+                        <div className={`w-8 h-8 rounded-lg ${info.bg} flex items-center justify-center mb-2`}>
+                            <info.icon className={`w-4 h-4 ${info.color}`} />
+                        </div>
+                        <h3 className="text-xs sm:text-sm font-semibold text-gray-200 mb-0.5">
+                            {info.title}
+                        </h3>
+                        <p className="text-[10px] sm:text-xs text-gray-500 leading-relaxed">
+                            {info.description}
+                        </p>
+                    </div>
+                ))}
+            </div>
+
+            {/* Info Banner */}
+            <div className="bg-gradient-to-r from-primary-500/5 via-purple-500/5 to-pink-500/5 border border-primary-500/10 rounded-xl p-4 sm:p-5 mb-6 sm:mb-8">
+                <div className="flex items-start gap-3">
+                    <Trophy className="w-5 h-5 text-primary-400 mt-0.5 shrink-0" />
+                    <div>
+                        <h3 className="text-sm font-semibold text-gray-200 mb-1">
+                            How Problem Evaluation Works
+                        </h3>
+                        <p className="text-xs text-gray-400 leading-relaxed">
+                            Each problem runs your code against hidden test cases using our sandboxed Piston execution engine.
+                            Solutions are evaluated on correctness, and accepted submissions earn XP points toward your leaderboard rank.
+                            Practice regularly to build streaks and unlock achievement badges on your profile!
+                        </p>
+                    </div>
+                </div>
             </div>
 
             {/* Filters */}
@@ -57,7 +126,7 @@ export default function ProblemsPage() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                     <input
                         type="text"
-                        placeholder="Search problems..."
+                        placeholder="Search problems by title, tag..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="input-field pl-10"
@@ -81,8 +150,8 @@ export default function ProblemsPage() {
                                 key={d}
                                 onClick={() => setDifficulty(d)}
                                 className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${difficulty === d
-                                        ? "bg-primary-500/20 text-primary-400 border border-primary-500/30"
-                                        : "text-gray-400 hover:text-gray-200 hover:bg-dark-300/30"
+                                    ? "bg-primary-500/20 text-primary-400 border border-primary-500/30"
+                                    : "text-gray-400 hover:text-gray-200 hover:bg-dark-300/30"
                                     }`}
                             >
                                 {d}
@@ -91,6 +160,18 @@ export default function ProblemsPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Problem Count */}
+            {data && data.length > 0 && (
+                <div className="flex items-center justify-between mb-4">
+                    <p className="text-sm text-gray-500">
+                        Showing <span className="text-gray-300 font-medium">{data.length}</span> problem{data.length !== 1 ? "s" : ""}
+                        {difficulty !== "All" && (
+                            <span> • Filtered by <span className={`font-medium ${difficulty === "Easy" ? "text-emerald-400" : difficulty === "Medium" ? "text-amber-400" : "text-rose-400"}`}>{difficulty}</span></span>
+                        )}
+                    </p>
+                </div>
+            )}
 
             {/* Problem List */}
             {isLoading ? (

@@ -5,5 +5,6 @@ const { protectRoute, protectAdmin } = require("../middleware/auth");
 
 router.get("/leaderboard", protectRoute, getLeaderboard);
 router.get("/", protectRoute, protectAdmin, getUsers);
+router.put("/:id/status", protectRoute, protectAdmin, require("../controllers/userController").updateUserStatus);
 
 module.exports = router;

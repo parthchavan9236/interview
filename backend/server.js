@@ -1,12 +1,17 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 const { serve } = require("inngest/express");
 
 // Load environment variables
 dotenv.config();
 
 const connectDB = require("./config/db");
+const config = require("./config/environments");
+const logger = require("./services/logger");
+const { extractClientInfo } = require("./middleware/activityLogger");
 const inngest = require("./inngest/client");
 const { sendInterviewReminder, processSubmission } = require("./inngest/functions");
 
@@ -18,33 +23,47 @@ const interviewRoutes = require("./routes/interviewRoutes");
 const codeRoutes = require("./routes/codeRoutes");
 const userRoutes = require("./routes/userRoutes");
 const commentRoutes = require("./routes/commentRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const contestRoutes = require("./routes/contestRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const reportRoutes = require("./routes/reportRoutes");
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = config.port || 5000;
 
-// Middleware
+// ── Security Middleware ──
+app.use(helmet());
 app.use(
     cors({
-        origin: ["http://localhost:5173", "http://localhost:3000"],
+        origin: config.corsOrigins?.length > 0
+            ? config.corsOrigins
+            : ["http://localhost:5173", "http://localhost:3000"],
         credentials: true,
     })
 );
 app.use(express.json());
 
-const fs = require('fs');
-const path = require('path');
+// Rate limiting
+const limiter = rateLimit({
+    windowMs: config.rateLimitWindow || 15 * 60 * 1000,
+    max: config.rateLimitMax || 100,
+    message: "Too many requests from this IP, please try again later.",
+});
+app.use("/api", limiter);
 
-// Request logger
+// ── Activity Logging Middleware ──
+app.use(extractClientInfo);
+
+// Request logger (Winston)
 app.use((req, res, next) => {
-    const log = `${new Date().toISOString()} - ${req.method} ${req.url}\n`;
-    try {
-        fs.appendFileSync(path.join(__dirname, 'server_log.txt'), log);
-    } catch (e) { console.error("Log error", e); }
-    console.log(`[REQUEST] ${req.method} ${req.url}`);
+    logger.info(`${req.method} ${req.url}`, {
+        ip: req.clientInfo?.ipAddress,
+        userAgent: req.clientInfo?.deviceInfo?.substring(0, 80),
+    });
     next();
 });
 
-// API Routes
+// ── API Routes ──
 app.use("/api/auth", authRoutes);
 app.use("/api/problems", problemRoutes);
 app.use("/api/submissions", submissionRoutes);
@@ -53,6 +72,11 @@ app.use("/api/code", codeRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/ai", require("./routes/aiRoutes"));
+app.use("/api/analytics", require("./routes/analyticsRoutes"));
+app.use("/api/admin", adminRoutes);
+app.use("/api/contests", contestRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/reports", reportRoutes);
 
 // Inngest route for background jobs
 app.use(
@@ -63,15 +87,39 @@ app.use(
     })
 );
 
-// Health check
+// ── Health Check (Enhanced) ──
 app.get("/api/health", (req, res) => {
-    res.json({ status: "ok", timestamp: new Date().toISOString() });
+    const mongoose = require("mongoose");
+    const cacheService = require("./services/cacheService");
+    const memUsage = process.memoryUsage();
+
+    res.json({
+        status: mongoose.connection.readyState === 1 ? "healthy" : "degraded",
+        timestamp: new Date().toISOString(),
+        uptime: `${Math.floor(process.uptime())}s`,
+        database: ["disconnected", "connected", "connecting", "disconnecting"][mongoose.connection.readyState],
+        memory: {
+            rss: `${(memUsage.rss / 1024 / 1024).toFixed(1)} MB`,
+            heap: `${(memUsage.heapUsed / 1024 / 1024).toFixed(1)} MB`,
+        },
+        cache: cacheService.getStats(),
+        environment: process.env.NODE_ENV || "development",
+    });
 });
 
 // 404 Catch-all
 app.use((req, res) => {
-    console.log(`[404] Route not found: ${req.url}`);
+    logger.warn(`[404] Route not found: ${req.url}`);
     res.status(404).json({ message: "Route not found (Backend)" });
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+    logger.error(err.message, { stack: err.stack });
+    res.status(500).json({
+        message: "Internal Server Error",
+        error: process.env.NODE_ENV === "development" ? err.message : undefined,
+    });
 });
 
 // Seed sample problems (for demo)
@@ -210,18 +258,43 @@ async function seedProblems() {
                     },
                 },
             ]);
-            console.log("Sample problems seeded successfully");
+            logger.info("Sample problems seeded successfully");
         }
     } catch (error) {
-        console.error("Seed error:", error);
+        logger.error("Seed error:", { error: error.message });
     }
 }
 
-// Start server
-// Start server
+// ── Start Server ──
 connectDB()
-    .then(() => {
+    .then(async () => {
         seedProblems();
+
+        // Ensure all model collections exist in MongoDB
+        // (Collections are lazy-created by default — this forces their creation)
+        try {
+            const models = [
+                require("./models/User"),
+                require("./models/Problem"),
+                require("./models/Submission"),
+                require("./models/Interview"),
+                require("./models/InterviewSlot"),
+                require("./models/Comment"),
+                require("./models/AuditLog"),
+                require("./models/Contest"),
+                require("./models/ContestSubmission"),
+                require("./models/Notification"),
+                require("./models/PerformanceReport"),
+                require("./models/PlagiarismReport"),
+                require("./models/PushSubscription"),
+            ];
+            for (const Model of models) {
+                await Model.createCollection();
+            }
+            logger.info(`Initialized ${models.length} database collections.`);
+        } catch (err) {
+            logger.warn("Collection init warning (non-fatal):", err.message);
+        }
 
         // Create HTTP server for Socket.io
         const http = require("http");
@@ -231,11 +304,33 @@ connectDB()
         initSocket(server);
 
         server.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
+            logger.info(`Server running on port ${PORT} [${process.env.NODE_ENV || "development"}]`);
         });
+
+        // ── Graceful Shutdown ──
+        const gracefulShutdown = (signal) => {
+            logger.info(`${signal} received. Starting graceful shutdown...`);
+            server.close(() => {
+                logger.info("HTTP server closed.");
+                const mongoose = require("mongoose");
+                mongoose.connection.close(false).then(() => {
+                    logger.info("MongoDB connection closed.");
+                    process.exit(0);
+                });
+            });
+
+            // Force shutdown after 10s if graceful fails
+            setTimeout(() => {
+                logger.error("Forced shutdown after timeout.");
+                process.exit(1);
+            }, 10000);
+        };
+
+        process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+        process.on("SIGINT", () => gracefulShutdown("SIGINT"));
     })
     .catch((err) => {
-        console.error("Failed to start server:", err);
+        logger.error("Failed to start server:", { error: err.message });
     });
 
 module.exports = app;

@@ -33,6 +33,16 @@ const interviewSchema = new mongoose.Schema(
             enum: ["scheduled", "in_progress", "completed", "cancelled"],
             default: "scheduled",
         },
+        startTime: { type: Date },
+        endTime: { type: Date },
+        duration: { type: Number, default: 0 }, // in minutes
+        score: { type: Number, default: 0 },
+        resultSummary: { type: String, default: "" },
+        antiCheatFlags: [{
+            timestamp: { type: Date, default: Date.now },
+            reason: String,
+            details: String
+        }],
         streamCallId: {
             type: String,
             required: true,
@@ -51,6 +61,10 @@ const interviewSchema = new mongoose.Schema(
         feedback: {
             rating: { type: Number, min: 1, max: 5 },
             comments: { type: String, default: "" },
+        },
+        isDeleted: {
+            type: Boolean,
+            default: false,
         },
     },
     { timestamps: true }

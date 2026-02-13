@@ -1,4 +1,5 @@
 const InterviewSlot = require("../models/InterviewSlot");
+const Interview = require("../models/Interview");
 
 // Create a new interview slot
 const createSlot = async (req, res) => {
@@ -87,10 +88,85 @@ const bookSlot = async (req, res) => {
         slot.status = "booked";
         await slot.save();
 
-        res.json(slot);
+        // Create Interview session
+        const interview = await Interview.create({
+            title: "Technical Interview",
+            interviewer: slot.interviewer,
+            candidate: req.user._id,
+            scheduledAt: slot.startTime,
+            streamCallId: `interview-${slot._id}-${Date.now()}`,
+            status: "scheduled"
+        });
+
+        res.json({ slot, interview });
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
-module.exports = { createSlot, getOpenSlots, getMySlots, bookSlot };
+const startInterview = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const interview = await Interview.findById(id);
+        if (!interview) return res.status(404).json({ message: "Interview not found" });
+        interview.status = "in_progress";
+        interview.startTime = new Date();
+        await interview.save();
+        res.json(interview);
+    } catch (error) {
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+const endInterview = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { score, feedback } = req.body;
+        const interview = await Interview.findById(id);
+        if (!interview) return res.status(404).json({ message: "Interview not found" });
+        interview.status = "completed";
+        interview.endTime = new Date();
+        interview.duration = (interview.endTime - interview.startTime) / (1000 * 60);
+        interview.score = score;
+        interview.feedback = feedback;
+        await interview.save();
+        res.json(interview);
+    } catch (error) {
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+const getInterview = async (req, res) => {
+    try {
+        const interview = await Interview.findById(req.params.id)
+            .populate("interviewer", "name image")
+            .populate("candidate", "name image")
+            .populate("problems");
+        res.json(interview);
+    } catch (error) {
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+
+const addProblemToInterview = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { problemId } = req.body;
+
+        const interview = await Interview.findById(id);
+        if (!interview) return res.status(404).json({ message: "Interview not found" });
+
+        // Prevent duplicates
+        if (!interview.problems.includes(problemId)) {
+            interview.problems.push(problemId);
+            await interview.save();
+        }
+
+        res.json(interview);
+    } catch (error) {
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+module.exports = { createSlot, getOpenSlots, getMySlots, bookSlot, startInterview, endInterview, getInterview, addProblemToInterview };

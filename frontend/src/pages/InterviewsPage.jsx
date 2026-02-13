@@ -114,12 +114,12 @@ export default function InterviewsPage() {
                                 Interviews
                             </h1>
                             <p className="text-gray-400 text-sm hidden sm:block">
-                                Schedule and manage your technical interviews.
+                                Schedule, manage, and conduct real-time technical interviews with HD video, collaborative code editor, and whiteboard.
                             </p>
                         </div>
                     </div>
                     <p className="text-gray-400 text-sm sm:hidden mt-1">
-                        Schedule and manage your interviews.
+                        Schedule and conduct real-time technical interviews.
                     </p>
                 </div>
                 <button
@@ -129,6 +129,15 @@ export default function InterviewsPage() {
                     <Plus className="w-4 h-4" />
                     New Interview
                 </button>
+            </div>
+
+            {/* Interview Features Info */}
+            <div className="bg-gradient-to-r from-purple-500/5 via-pink-500/5 to-primary-500/5 border border-purple-500/10 rounded-xl p-4 mb-6 sm:mb-8">
+                <p className="text-xs text-gray-400 leading-relaxed">
+                    <span className="text-purple-400 font-medium">Interview Room Features:</span>{" "}
+                    WebRTC-powered HD video & audio • Real-time collaborative Monaco code editor • Drawing whiteboard tool •
+                    Socket.IO live chat • Role-based access (Interviewer / Candidate) • Automatic session recording metadata
+                </p>
             </div>
 
             {isLoading ? (

@@ -87,6 +87,7 @@ export const getStreamToken = () => api.get("/interviews/stream-token");
 // ─── AI API ──────────────────────────────────────────────────────
 export const getAIHint = (data) => api.post("/ai/hint", data);
 export const analyzeCode = (data) => api.post("/ai/analyze", data);
+export const chatWithAI = (data) => api.post("/ai/chat", data);
 
 // ─── Comment API ──────────────────────────────────────────────────
 export const getComments = (problemId) => api.get(`/comments/${problemId}`);

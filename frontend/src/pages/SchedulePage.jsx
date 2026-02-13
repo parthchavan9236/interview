@@ -14,10 +14,17 @@ export default function SchedulePage() {
 
     return (
         <div className="min-h-[calc(100vh-4rem)] p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Mock Interviews</h1>
-                    <p className="text-gray-400">Practice with peers in real-time coding sessions</p>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/25 flex-shrink-0">
+                        <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-white">Mock Interviews</h1>
+                        <p className="text-gray-400 text-sm hidden sm:block">
+                            Practice with peers in real-time — post your availability or book a live coding session instantly.
+                        </p>
+                    </div>
                 </div>
                 <div className="flex bg-dark-200 p-1 rounded-lg">
                     <button
@@ -46,6 +53,16 @@ export default function SchedulePage() {
                         My Schedule
                     </button>
                 </div>
+            </div>
+
+            {/* Peer Interview Info */}
+            <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-xl p-4 mb-6 sm:mb-8">
+                <p className="text-xs text-gray-400 leading-relaxed">
+                    <span className="text-indigo-400 font-medium">Peer-to-Peer Mock Interviews:</span>{" "}
+                    Create availability slots and let other users book you as an interviewer, or browse open slots and book a session.
+                    Each session opens a dedicated interview room with WebRTC video, Monaco code editor, whiteboard, and live chat.
+                    Use "Instant Meeting" for ad-hoc sessions with a shareable link.
+                </p>
             </div>
 
             {activeTab === "find" ? (

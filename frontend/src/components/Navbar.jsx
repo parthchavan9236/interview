@@ -100,6 +100,10 @@ export default function Navbar() {
         { path: "/problems", label: "Problems", icon: BookOpen },
         { path: "/leaderboard", label: "Leaderboard", icon: Trophy },
         { path: "/interviews", label: "Interviews", icon: Video },
+        ...(isSignedIn ? [
+            { path: "/resume", label: "Resume", icon: FileText },
+            { path: "/profile", label: "Profile", icon: User },
+        ] : []),
         ...(user?.role === "admin" ? [{ path: "/admin", label: "Admin", icon: Shield }] : []),
     ];
 

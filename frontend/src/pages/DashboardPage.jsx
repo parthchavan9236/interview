@@ -3,7 +3,7 @@ import { useUser, useAuth } from "../lib/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { getSubmissionStats, getProblems } from "../lib/api";
 import LoadingSpinner from "../components/LoadingSpinner";
-import AIChatWidget from "../components/AIChatWidget";
+
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import {
     Code2,
@@ -41,9 +41,13 @@ const quickActions = [
 
 const platformFeatures = [
     { icon: Code2, label: "Live Code Editor", description: "Monaco-powered with IntelliSense" },
-    { icon: BarChart3, label: "Auto Evaluation", description: "Instant test case validation" },
+    { icon: BarChart3, label: "Auto Evaluation", description: "Sandboxed Piston execution engine" },
     { icon: Calendar, label: "Interview Scheduling", description: "One-click HD video sessions" },
     { icon: CheckCircle2, label: "Multi-Language", description: "JavaScript & Python support" },
+    { icon: Trophy, label: "Contest Mode", description: "Competitive timed coding contests" },
+    { icon: Target, label: "Plagiarism Detection", description: "N-gram based code similarity" },
+    { icon: TrendingUp, label: "Performance Reports", description: "Downloadable analytics & insights" },
+    { icon: Sparkles, label: "Smart Notifications", description: "Real-time activity alerts" },
 ];
 
 export default function DashboardPage() {
@@ -111,7 +115,7 @@ export default function DashboardPage() {
                         Welcome back, <span className="bg-gradient-to-r from-primary-400 to-purple-400 bg-clip-text text-transparent">{firstName}</span>
                     </h1>
                     <p className="text-gray-400 text-sm sm:text-base">
-                        Ready to ace your next technical interview? Here's your command center.
+                        Ready to ace your next technical interview? Here's your command center — track progress, practice problems, and prepare with AI-powered insights.
                     </p>
                 </div>
 
@@ -247,8 +251,8 @@ export default function DashboardPage() {
                                                 <h4 className="font-medium text-gray-200 text-sm mb-1">{prob.title}</h4>
                                                 <div className="flex gap-2">
                                                     <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${prob.difficulty === 'Easy' ? 'bg-emerald-500/10 text-emerald-400' :
-                                                            prob.difficulty === 'Medium' ? 'bg-amber-500/10 text-amber-400' :
-                                                                'bg-red-500/10 text-red-400'
+                                                        prob.difficulty === 'Medium' ? 'bg-amber-500/10 text-amber-400' :
+                                                            'bg-red-500/10 text-red-400'
                                                         }`}>{prob.difficulty}</span>
                                                     <span className="text-[10px] text-gray-500 bg-dark-400 px-1.5 py-0.5 rounded">{prob.tags[0]}</span>
                                                 </div>
@@ -281,8 +285,7 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            {/* AI Assistant Widget */}
-            <AIChatWidget />
+
         </div>
     );
 }
