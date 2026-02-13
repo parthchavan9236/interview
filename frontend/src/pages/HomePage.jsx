@@ -386,40 +386,7 @@ export default function HomePage() {
                 </div>
             </section>
 
-            {/* Tech Stack */}
-            <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-                <div className="glass-card p-6 sm:p-8 lg:p-12 text-center">
-                    <Zap className="w-8 h-8 sm:w-10 sm:h-10 text-primary-400 mx-auto mb-3 sm:mb-4" />
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-3 sm:mb-4">
-                        Built with Modern Tech
-                    </h2>
-                    <p className="text-gray-400 mb-6 sm:mb-8 max-w-xl mx-auto text-sm sm:text-base">
-                        Powered by React, Node.js, Express, MongoDB, Clerk, Stream, and more.
-                    </p>
 
-                    <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-                        {[
-                            "React.js",
-                            "Node.js",
-                            "Express.js",
-                            "MongoDB",
-                            "Tailwind CSS",
-                            "Clerk",
-                            "Stream",
-                            "Monaco Editor",
-                            "TanStack Query",
-                            "Inngest",
-                        ].map((tech) => (
-                            <span
-                                key={tech}
-                                className="bg-dark-300/50 border border-dark-400/50 text-gray-300 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium hover:border-primary-500/30 hover:text-primary-300 transition-all duration-300"
-                            >
-                                {tech}
-                            </span>
-                        ))}
-                    </div>
-                </div>
-            </section>
 
             {/* CTA Section */}
             {!isSignedIn && (
