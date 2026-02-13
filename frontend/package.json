@@ -10,6 +10,7 @@
     },
     "dependencies": {
         "@clerk/clerk-react": "^5.20.1",
+        "@clerk/themes": "^2.4.51",
         "@monaco-editor/react": "^4.6.0",
         "@stream-io/video-react-sdk": "^1.8.2",
         "@tanstack/react-query": "^5.64.2",

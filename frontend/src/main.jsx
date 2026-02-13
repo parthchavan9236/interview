@@ -27,8 +27,10 @@ const queryClient = new QueryClient({
     },
 });
 
+import { dark } from "@clerk/themes";
+
 const clerkAppearance = {
-    baseTheme: undefined,
+    baseTheme: dark,
     variables: {
         colorPrimary: "#6366f1",
         colorBackground: "#1a1a2e",
@@ -40,6 +42,11 @@ const clerkAppearance = {
     elements: {
         card: "bg-dark-50 border border-dark-400/30",
         formButtonPrimary: "btn-primary",
+        // Force text color on menu items just in case
+        userButtonPopoverCard: "bg-dark-50 border border-dark-400/30 text-white",
+        userButtonPopoverActionButton: "text-gray-200 hover:text-white hover:bg-dark-400/50",
+        userButtonPopoverActionButtonIcon: "text-gray-400",
+        userButtonPopoverFooter: "hidden" // Optional: hide footer if it looks bad
     },
 };
 
