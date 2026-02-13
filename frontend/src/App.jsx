@@ -68,11 +68,7 @@ function App() {
                 <Routes>
                     <Route
                         path="/"
-                        element={
-                            <ProtectedRoute>
-                                <Navigate to="/dashboard" replace />
-                            </ProtectedRoute>
-                        }
+                        element={<HomePage />}
                     />
                     <Route
                         path="/sign-in/*"
