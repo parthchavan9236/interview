@@ -277,7 +277,7 @@ export default function ProblemDetailPage() {
             <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
                 {/* Left Panel - Problem Description (Desktop always visible, mobile toggleable) */}
                 <div
-                    className={`w-full lg:w-[45%] border-r border-dark-400/30 flex flex-col overflow-hidden ${mobilePanel === "description" ? "flex" : "hidden lg:flex"
+                    className={`w-full lg:w-[45%] border-r border-dark-400/30 flex flex-col overflow-hidden ${mobilePanel === "description" ? "flex" : "hidden lg:!flex"
                         }`}
                 >
                     {/* Desktop Tabs */}
@@ -326,7 +326,7 @@ export default function ProblemDetailPage() {
 
                 {/* Right Panel - Code Editor */}
                 <div
-                    className={`flex-1 flex flex-col overflow-hidden ${mobilePanel === "editor" ? "flex!" : "hidden lg:flex!"
+                    className={`flex-1 flex flex-col overflow-hidden ${mobilePanel === "editor" ? "flex" : "hidden lg:!flex"
                         }`}
                 >
                     <div className="flex-1 min-h-0">
