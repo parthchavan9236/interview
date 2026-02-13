@@ -326,7 +326,7 @@ export default function ProblemDetailPage() {
 
                 {/* Right Panel - Code Editor */}
                 <div
-                    className={`flex-1 flex flex-col overflow-hidden ${mobilePanel === "editor" ? "flex" : "hidden lg:flex"
+                    className={`flex-1 flex flex-col overflow-hidden ${mobilePanel === "editor" ? "flex!" : "hidden lg:flex!"
                         }`}
                 >
                     <div className="flex-1 min-h-0">
